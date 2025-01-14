@@ -1,26 +1,25 @@
 import React, { useEffect, useState } from "react";
+import "../styles/ProductList.css"
+import { fetchProducts } from "../utils/api";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Consumir a API do back-end
-    fetch("http://localhost:3001/api/products")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erro ao buscar os produtos.");
-        }
-        return response.json();
-      })
-      .then((data) => {
+    const getProducts = async () => {
+      try {
+        const data = await fetchProducts(); 
         setProducts(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
         setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Erro:", error);
-        setLoading(false);
-      });
+      }
+    };
+
+    getProducts();
   }, []);
 
   if (loading) {
@@ -28,12 +27,16 @@ const ProductList = () => {
   }
 
   return (
-    <div>
+    <div className="product-list-container">
       <h1>Lista de Produtos</h1>
-      <ul>
+      <ul className="product-list">
         {products.map((product) => (
           <li key={product.id}>
-            <strong>{product.name}</strong> - ${product.price}
+            <img src={product.image} alt={product.name} />
+            <strong>{product.name}</strong>
+            <p className="detail">{product.detail}</p>
+            <p className="info">{product.info}</p>
+            <p className="price">${product.price}</p>
           </li>
         ))}
       </ul>
