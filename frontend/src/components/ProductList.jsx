@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import "../styles/ProductList.css"
+import "../styles/ProductList.css";
 import { fetchProducts } from "../utils/api";
 
-const ProductList = () => {
+const ProductList = ({ addToCart }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -10,7 +10,7 @@ const ProductList = () => {
   useEffect(() => {
     const getProducts = async () => {
       try {
-        const data = await fetchProducts(); 
+        const data = await fetchProducts();
         setProducts(data);
       } catch (err) {
         setError(err.message);
@@ -26,22 +26,32 @@ const ProductList = () => {
     return <p>Carregando produtos...</p>;
   }
 
+  if (error) {
+    return <p>Erro: {error}</p>;
+  }
+
   return (
     <div className="product-list-container">
-      <h1>Lista de Produtos</h1>
-      <ul className="product-list">
-        {products.map((product) => (
-          <li key={product.id}>
-            <img src={product.image} alt={product.name} />
-            <strong>{product.name}</strong>
-            <p className="detail">{product.detail}</p>
-            <p className="info">{product.info}</p>
-            <p className="price">${product.price}</p>
-          </li>
-        ))}
-      </ul>
+   
+    <div className="product-grid">
+      {products.map((product, index) => (
+        <div key={index} className="product-card">
+          <img src={product.image} alt={product.name} className="product-image" />
+          <div className="product-details">
+            <strong className="product-name">{product.name}</strong>
+            <p className="product-detail">{product.detail}</p>
+            {product.hero && <p className="hero-highlight">{product.hero}</p>}
+            {product.offer && <p className="offer-highlight">{product.offer}</p>}
+            <p className="product-price">R$ {parseFloat(product.price).toFixed(2)}</p>
+          </div>
+          <button className="add-to-cart-btn" onClick={() => addToCart(product)}>
+            Adicionar ao Carrinho
+          </button>
+        </div>
+      ))}
     </div>
-  );
+  </div>
+);
 };
 
 export default ProductList;
